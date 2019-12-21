@@ -34,7 +34,7 @@ export default class ProfileScreen extends React.Component{
             test : 0,
             currentToken : null,
             editProfile:0,
-            photo : null
+            photo : null,
         }
     }
 
@@ -89,9 +89,9 @@ export default class ProfileScreen extends React.Component{
         .then(response => response.json())
         .then(response=>{
             console.log("upload success", response);
-            this.setState({photo:null})
+            this.setState({dataPhoto:response.path})
+            console.log(this.state.dataPhoto)
             alert("Photo successfully changed!")
-            this.setState({dataPhoto:this.state.photo.uri})
         })
         .catch((error) => {
             console.log(error);
