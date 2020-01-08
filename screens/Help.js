@@ -1,17 +1,16 @@
 import React from 'react';
-import {View, Text, View, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, SafeAreaView,ScrollView} from 'react-native';
 
-
-export default class SettingScreen extends React.Component{
+export default class Privacy extends React.Component{
     constructor(props){
         super(props)
 
     }
     render(){
         return(
-            <View style={style.container}>
-                <Text>SettingScrren of the app</Text>
-            </View>
+            <SafeAreaView>
+                <Text>Help</Text>
+            </SafeAreaView>
         )
     }
 }

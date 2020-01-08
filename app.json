@@ -1,4 +1,10 @@
+
+
 {
   "name": "zeroToTen",
-  "displayName": "zeroToTen"
+  "displayName": "zeroToTen",
+  "ios" :  {
+    "supportsTablet"  : true,
+    "bundleIdentifier": "com.notteghem.zerototen"
+  }
 }

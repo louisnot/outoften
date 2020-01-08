@@ -26,7 +26,7 @@ export default class LoginScreen extends React.Component{
         })
     }
     loginFromApi() {
-        axios.post('http://localhost:5050/api/home/login/', {
+        axios.post('http://137.74.196.13:5050/api/home/login/', {
             email: this.state.email,
             password:this.state.password
         },)
@@ -50,7 +50,7 @@ export default class LoginScreen extends React.Component{
         return(
             <View style={{flex:1, alignItems: 'center', justifyContent:'center'}}>
                 <View style={styles.header}>
-                    <Text style={{fontSize:56}}>Welcome to the team grader!</Text>
+                    <Text style={{fontSize:56}}>Welcome to OutOfTen!</Text>
                 </View>
                 <Input
                     autoCapitalize={"none"}

@@ -4,6 +4,7 @@ import { Icon, Button } from 'react-native-elements';
 import ImagePicker from 'react-native-image-picker';
 import axios from 'axios';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import SettingScreen from './SettingScreen';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -43,7 +44,7 @@ export default class ProfileScreen extends React.Component{
             return(
                 <React.Fragment>
                         <Image 
-                            source={{uri:"http://localhost:5050/uploads/avatardefault.png"}}
+                            source={{uri:"http://137.74.196.13:5050/uploads/avatardefault.png"}}
                             style={{ width: SCREEN_WIDTH - 20, height: SCREEN_HEIGHT-300, borderRadius: 20, }}
                         />
                 </React.Fragment> 
@@ -53,7 +54,7 @@ export default class ProfileScreen extends React.Component{
             return(
                 <React.Fragment>
                         <Image 
-                            source={{uri:"http://localhost:5050/"+this.state.dataPhoto}}
+                            source={{uri:"http://137.74.196.13:5050/"+this.state.dataPhoto}}
                             style={{ width: SCREEN_WIDTH - 20, height: SCREEN_HEIGHT-300, borderRadius: 20, }}
                         />
                 </React.Fragment> 
@@ -82,7 +83,7 @@ export default class ProfileScreen extends React.Component{
     }
 
     handleUploadPhoto = () => {
-        fetch("http://localhost:5050/api/new/uploads/"+this.state.userId,{
+        fetch("http://137.74.196.13:5050/api/new/uploads/"+this.state.userId,{
             method:"POST",
             body : createFormData(this.state.photo,{userid : "123"})
         })
@@ -104,7 +105,7 @@ export default class ProfileScreen extends React.Component{
           'authorization':'Bearer '+this.props.screenProps.jwt
         }
         console.log(header)
-        axios.get('http://localhost:5050/api/posts',{
+        axios.get('http://137.74.196.13:5050/api/posts',{
           headers : header
         })
         .then((response) =>{
@@ -120,7 +121,7 @@ export default class ProfileScreen extends React.Component{
         const newHeader = {
             'authorization' : 'Bearer '+this.state.currentToken
         }
-        axios.get('http://localhost:5050/api/new/'+this.state.userId, {
+        axios.get('http://137.74.196.13:5050/api/new/'+this.state.userId, {
             headers : newHeader
         })
         .then((res)=>{
@@ -153,13 +154,13 @@ export default class ProfileScreen extends React.Component{
                     <TouchableOpacity style={styles.editSettings}onPress={() => this.setState({editProfile:1})}>
                         <Text style={{textAlign:'center',lineHeight:35}}>Edit photo</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.editSettings}>
+                    <TouchableOpacity style={styles.editSettings} onPress={()=>this.props.navigation.navigate('Setting')}>
                         <Text style={{textAlign:'center',lineHeight:35}}>Settings</Text>
                     </TouchableOpacity>
                 </View>
             </View>
         )
-    }else{
+    }if(this.state.editProfile==1){
         const { photo } = this.state
         return(
             <View style={{flex:1,alignContent:'center',justifyContent:'center'}}>
@@ -197,38 +198,3 @@ const styles= StyleSheet.create({
 
 })
 
-
-/*
-
-<React.Fragment>
-                        <Image
-                            source={this.state.dataPhoto}
-                            style={{ width: SCREEN_WIDTH - 20, height: SCREEN_HEIGHT-300, borderRadius: 20, }}
-                        />
-                            <Button title='Upload image' onPress={this.handleUploadPhoto}/>
-                        </React.Fragment> 
-
-    // REVOIR L'HANDLE
-    handleChoosePhoto = () =>{
-        const options = {
-            title : 'Select profile pic',
-            noData : true,
-        };
-        ImagePicker.showImagePicker(options,response => {
-            if (response.didCancel) {
-                alert('User cancelled image picker');
-              }
-            if(response.uri){
-                    this.setState({dataPhoto: response});
-                    this.setState({test : 1})
-                
-            }
-            else if (response.error) {
-                console.log('ImagePicker Error: ', response.error);
-            } 
-            
-        })
-    }
-
-
-                        */
