@@ -20,7 +20,6 @@ export default class RegisterScreen extends React.Component{
             name:"",
             age:undefined,
             sexe:null,
-            sexeSelected : 2,
             errorRegistering: '',
             idUser : null,
             isLoading : false,
@@ -31,29 +30,7 @@ export default class RegisterScreen extends React.Component{
         }
         this.apiRegister = this.apiRegister.bind(this)
         this.registrationFailed = this.registrationFailed.bind(this);
-        this.chooseSex = this.chooseSex.bind(this)
     }
-
-        test = (selectedIndex) => {
-            if(selectedIndex==1){
-                this.setState({sexe:"Man"})
-            }if(selectedIndex==0){
-                this.setState({sexe:"Woman"})
-            }
-        }
-        chooseSex(selectedIndex) {
-                this.setState({sexeSelected:selectedIndex})
-                this.test(selectedIndex)
-        }
-
-        sexeVerification = () => {
-            if(this.state.sexe=="Man" || this.state.sexe=="Woman"){
-                return(true);
-            }else{
-                return false;
-            }
-        }
-
 
         checkBoxclick = () => {
             if(this.state.checked == false){
@@ -85,7 +62,7 @@ export default class RegisterScreen extends React.Component{
             }
         }
         registrationFailed () {
-                if(!this.ageVerification()||this.nameVerification()||!this.sexeVerification()){
+                if(!this.ageVerification()||this.nameVerification()){
                     return(
                         this.dropDownAlertRef.alertWithType('error','Error','Your name, age or sexe includes error please check info are correct.')
                     )
@@ -114,7 +91,6 @@ export default class RegisterScreen extends React.Component{
                     password : this.state.password,
                     name : this.state.name,
                     age: this.state.age,
-                    sexe: this.state.sexe
             },)
             .then((response) => {
                 this.dropDownAlertRef.alertWithType('success','Success','Account created succesfully!')
@@ -171,11 +147,6 @@ export default class RegisterScreen extends React.Component{
                     >
                     </Input>
                     {this.ageVerification()}
-                    <ButtonGroup
-                    buttons={['Woman','Man']}
-                    selectedIndex={this.state.sexeSelected}
-                    onPress={this.chooseSex}
-                    />
                     <TouchableOpacity onPress={() => this.setState({EULA:1})}>
                         <Text style={{color:'#1CAFD3', fontSize:18}}>Read the user Licence Agreement</Text>
                     </TouchableOpacity>

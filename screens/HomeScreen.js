@@ -9,10 +9,11 @@ import {
   PanResponder,
   Button,
   StatusBar,
-  RefreshControl,
+  TextInput,
+  KeyboardAvoidingView,
+  Keyboard,
+  TouchableWithoutFeedback
 } from 'react-native';
-import Slider from '@react-native-community/slider';
-import Navigator from '../Navigation/Navigation';
 import {randomInt, pow, floor} from 'mathjs';
 import axios from 'axios';
 import Modal from 'react-native-modal';
@@ -28,6 +29,11 @@ const realUsers = [];
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
+const DismissKeyboard = ({ children}) => {
+  <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+   {children} 
+  </TouchableWithoutFeedback>
+}
 //randomInt(500,1500);
 
 export default class HomeScreen extends React.Component {
@@ -44,12 +50,11 @@ export default class HomeScreen extends React.Component {
       defaultAvatar: 'uploads/avatardefault.png',
       currentToken: this.props.screenProps.jwt,
       readyRender: 0,
-      sliderValue: 5,
       voteHistory: [],
       ready: false,
       isModaleVisible: false,
+      commentUser : ""
     };
-    /*
         this.PanResponder = PanResponder.create({
           onStartShouldSetPanResponder: (evt, gestureState) => true,
           onPanResponderMove: (evt, gestureState) => {
@@ -57,16 +62,6 @@ export default class HomeScreen extends React.Component {
             this.position.setValue({ x: gestureState.dx, y: gestureState.dy })
           },
           onPanResponderRelease: (evt, gestureState) => {
-            this.setState({yPos:gestureState.dy})
-            if(gestureState.dy<-280){
-              Animated.spring(this.position, {
-                toValue:{x:gestureState.dx, y:gestureState.dy-200}
-              }).start(()=>{
-                this.setState({currentIndex:this.state.currentIndex+1}, () => {
-                  this.position.setValue({x:0,y:0})
-                })
-              })
-            }
             if (gestureState.dx > 140) {
               this._upScore()
               Animated.spring(this.position, {
@@ -95,7 +90,8 @@ export default class HomeScreen extends React.Component {
             }
 
           }
-        })*/
+        })
+
     this.infoUserAdverse = {};
     this.rotate = this.position.x.interpolate({
       inputRange: [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
@@ -157,7 +153,11 @@ export default class HomeScreen extends React.Component {
       });
     }
 
-
+  hideKeyboard = (event) => {
+    if(event.nativeEvent.key =='Enter'){
+      Keyboard.dismiss();
+    }
+  }
   historyUsers = () => {
     axios({
       method: 'GET',
@@ -223,80 +223,57 @@ export default class HomeScreen extends React.Component {
   };
 
   renderUsers = () => {
-    if (realUsers.length == 0) {
-      return (
-        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-          <Text>No new users to vote for </Text>
-        </View>
-      );
-    } else {
-      return realUsers
-        .map((item, i) => {
-          if (i < this.state.currentIndex){
-            return null;
-          } else if (i == this.state.currentIndex) {
-            console.log('render users cas 2');
-            this.infoUserAdverse = realUsers[i];
-            return (
-              <View
-                key={item._id}
-                style={{
-                  height: SCREEN_HEIGHT - 300,
-                  width: SCREEN_WIDTH,
-                  padding: 10,
-                  position: 'absolute',
-                }}>
-                <Image
-                  style={{
-                    flex: 1,
-                    height: null,
-                    width: null,
-                    resizeMode: 'cover',
-                    borderRadius: 20,
-                  }}
-                  source={{uri:'http://137.74.196.13:5050/'+item.userImage}} />
-                  <View style={{alignItems:'center',bottom:-15}}>
-                <TouchableOpacity
-                  style={styles.reportButton}
-                  onPress={() => this._vote()}>
-                  <Text style={{textAlign: 'center', lineHeight: 35}}>
-                    Submit Vote
-                  </Text>
-                </TouchableOpacity>
-                </View>
-              </View>
-
-            );
-          } else {
-            console.log('render users cas 3');
-            return (
-              <View
-                key={item._id}
-                style={[
-                  {
-                    height: SCREEN_HEIGHT - 220,
-                    width: SCREEN_WIDTH,
-                    padding: 10,
-                    position: 'absolute',
-                  },
-                ]}>
-                <Image
-                  style={{
-                    flex: 1,
-                    height: null,
-                    width: null,
-                    resizeMode: 'cover',
-                    borderRadius: 20,
-                  }}
-                  source={item.uri}
-                />
-              </View>
-            );
+        if(realUsers.length==0){
+          return(
+            <View style={{flex:1, justifyContent:'center',alignItems:'center'}}>
+              <Text>No new users to vote for </Text>
+            </View>
+          )
+        }
+        else{
+        return realUsers.map((item, i) => {
+          if(i< this.state.currentIndex){
+            return null
           }
-        })
-        .reverse();
-    }
-  };
+          else if (i == this.state.currentIndex){
+            console.log("render users cas 2")
+            this.infoUserAdverse=realUsers[i]
+            return (
+              <Animated.View
+                {...this.PanResponder.panHandlers}
+                key={item._id} style={[this.rotateAndTranslate , { height: SCREEN_HEIGHT - 350, width: SCREEN_WIDTH, padding: 10, position: 'absolute' }]}>
+                  <Animated.View style={{ opacity: this.likeOpacity, transform: [{ rotate: '-30deg' }], position: 'absolute', top: 50, left: 40, zIndex: 1000 }}>
+                    <Text style={{ borderWidth: 1, borderColor: 'green', color: 'green', fontSize: 32, fontWeight: '800', padding: 10 }}>++</Text>
+                  </Animated.View> 
+                  <Animated.View style={{ opacity: this.dislikeOpacity, transform: [{ rotate: '30deg' }], position: 'absolute', top: 50, right: 40, zIndex: 1000 }}>
+                    <Text style={{ borderWidth: 1, borderColor: 'red', color: 'red', fontSize: 32, fontWeight: '800', padding: 10 }}>--</Text>
+                  </Animated.View>
+
+                <Image
+                  style={{ flex: 1, height: null, width: null, resizeMode: 'cover', borderRadius: 20 }}
+                  source={{uri:"http://137.74.196.13:5050/"+item.userImage}} />
+              </Animated.View>
+              
+            )
+          }
+          else {
+            console.log("render users cas 3")
+            return (
+              <Animated.View
+                key={item._id} style={[{
+                  opacity: this.nextCardOpacity,
+                  transform: [{scale: this.nextCardScale}], 
+                  height: SCREEN_HEIGHT - 220, width: SCREEN_WIDTH, padding: 10, position: 'absolute' }]}>
+                <Image
+                  style={{ flex: 1, height: null, width: null, resizeMode: 'cover', borderRadius: 20 }}
+                  source={item.uri} />
+      
+              </Animated.View>
+            )
+          }
+        }).reverse()
+      }
+      }
   
   componentDidMount() {
     var that = this;
@@ -326,6 +303,7 @@ export default class HomeScreen extends React.Component {
       });
   };
 
+  
   averageDown = () => {
     axios
       .patch('http://137.74.196.13:5050/api/vote/downvote/' + this.state.idUser)
@@ -347,177 +325,152 @@ export default class HomeScreen extends React.Component {
       });
   };
 
-  _vote = () => {
-    let jugé = this.infoUserAdverse.Score;
-    let mark = this.state.sliderValue;
-    if (mark => 5) {
-      jugé = jugé + mark;
-      axios({
-        method: 'POST',
-        url: 'http://137.74.196.13:5050/api/home/vote',
-        headers: {authorization: 'Bearer ' + this.state.currentToken},
-        data: {
-          userId: this.infoUserAdverse._id,
-          Score: jugé,
-        },
-      })
-        .then(res => {
-          console.log(res);
-          console.log(jugé);
-          this.averageUp();
-          this.addHisotryUser();
-          this.setState({currentIndex: this.state.currentIndex + 1});
-        })
-        .catch(err => {
-          console.log(err);
-        });
-    } else {
-      jugé = jugé - mark;
-      axios({
-        method: 'POST',
-        url: 'http://137.74.196.13:5050/api/home/vote',
-        headers: {authorization: 'Bearer ' + this.state.currentToken},
-        data: {
-          userId: this.infoUserAdverse._id,
-          Score: jugé,
-        },
-      })
-        .then(res => {
-          console.log(jugé);
-          console.log(res);
-          this.averageDown();
-          this.addHisotryUser();
-          this.setState({currentIndex: this.state.currentIndex + 1});
-        })
-        .catch(err => {
-          console.log(err);
-        });
-    }
-  };
-
-  _upScore() {
-    let juge = this.state.scoreUser;
-    let jugé = this.infoUserAdverse.Score;
-    let facteurPonderation = 20;
-    var D = juge - jugé;
-    var pD = 1 / (1 + pow(10, -D / 400));
-    console.log(juge, jugé);
-    console.log(D, pD);
-    if (pD > 0.95) {
-      alert('>0.95');
-      facteurPonderation = 7000;
-      jugé = jugé + facteurPonderation * (1 - pD);
-    }
-    if (pD > 0.7 && pD < 0.95) {
-      alert(0.7);
-      facteurPonderation = 5;
-      jugé = jugé + facteurPonderation * (1 - pD);
-    }
-
-    if (pD => 0.5 && pD < 0.7) {
-      alert(0.5);
-      facteurPonderation = 8;
-      jugé = jugé + facteurPonderation * (1 - pD);
-    }
-    if (pD > 0.3 && pD < 0.5) {
-      alert('petit 0.3');
-      facteurPonderation = 11;
-      jugé = jugé + facteurPonderation * (1 - pD);
-    }
-    if (pD > 0.2 && pD < 0.3) {
-      alert('<0.03');
-      facteurPonderation = 14.65;
-      jugé = jugé + facteurPonderation * (1 - pD);
-    }
-    if (pD > 0.05 && pD < 0.2) {
-      alert('<0.02');
-      facteurPonderation = 18;
-      jugé = jugé + facteurPonderation * (1 - pD);
-    }
-    if (pD > 0.001 && pD < 0.05) {
-      alert('tres petit 0.001');
-      facteurPonderation = 35;
-      jugé = jugé + facteurPonderation * (1 - pD);
-    }
-    if (pD < 0.001) {
-      alert('<0.001');
-      facteurPonderation = 100;
-      jugé = jugé + facteurPonderation * (1 - pD);
-    }
-    console.log(jugé);
-    jugé = floor(jugé);
-    console.log("arpès l'arrondi", jugé);
-    console.log('id adverse', this.infoUserAdverse._id);
+  _sendComment = () => {
     axios({
-      method: 'POST',
-      url: 'http://137.74.196.13:5050/api/home/vote',
-      headers: {authorization: 'Bearer ' + this.state.currentToken},
-      data: {
-        userId: this.infoUserAdverse._id,
-        Score: jugé,
-      },
+      method:'POST',
+      url: 'http://137.74.196.13:5050/api/home/comment',
+      data:{
+        idUser : this.infoUserAdverse._id,
+        message : this.state.commentUser
+      }
     })
-      .then(res => {
-        console.log(res);
-        this.averageUp();
-        this.addHisotryUser();
-      })
-      .catch(err => {
-        console.log(err);
-      });
-    /*
-        else{
-          alert("else")
-          juge=juge+facteurPonderation*(1-pD);
-        }*/
+    .then(res => {
+      console.log(res)
+      this.eraseComment()
+    })
+    .catch(err => {
+      console.log(err)
+    })
   }
 
-  _downScore() {
-    let juge = this.state.scoreUser;
+  _upScore(){
+    let juge= this.state.scoreUser;
     let jugé = this.infoUserAdverse.Score;
-    let facteurPonderation = 20;
-    var D = juge - jugé;
-    var pD = 1 / (1 + pow(10, -D / 400));
-    if (pD > 0.95) {
-      alert('test');
-      facteurPonderation = 50;
-      jugé = jugé + facteurPonderation * (0 - pD);
+    let facteurPonderation=20
+    var D = juge-jugé;
+    var pD = 1/(1+pow(10,-D/400));
+    console.log(juge,jugé)
+    console.log(D,pD)
+    if(pD>0.95){
+      facteurPonderation=7000;
+      jugé=jugé+facteurPonderation*(1-pD);
     }
-    if (pD > 0.7) {
-      facteurPonderation = 12;
-      jugé = jugé + facteurPonderation * (0 - pD);
+    if(pD>0.7 && pD<0.95){
+      facteurPonderation = 5;
+      jugé=jugé+facteurPonderation*(1-pD);
     }
-    if (pD < 0.3) {
-      facteurPonderation = 32;
-      jugé = jugé + facteurPonderation * (0 - pD);
-    } else {
-      jugé = jugé + facteurPonderation * (0 - pD);
+
+    if(pD=>0.5 && pD<0.7){
+      facteurPonderation=8
+      jugé=jugé+facteurPonderation*(1-pD);
     }
-    console.log(jugé);
-    jugé = floor(jugé);
-    console.log("arpès l'arrondi", jugé);
-    console.log('id adverse', this.infoUserAdverse._id);
-    axios({
+    if(pD>0.3 && pD<0.5){
+      facteurPonderation = 11;
+      jugé=jugé+facteurPonderation*(1-pD);
+    }
+    if(pD>0.2 && pD<0.3){
+      facteurPonderation=14.65;
+      jugé=jugé+facteurPonderation*(1-pD)
+    }
+    if(pD>0.05 && pD<0.2){
+      facteurPonderation=18
+      jugé=jugé+facteurPonderation*(1-pD)
+    }
+    if(pD>0.001 && pD<0.05){
+      facteurPonderation=35;
+      jugé=jugé+facteurPonderation*(1-pD);
+    }
+    if(pD<0.001){
+      facteurPonderation=100
+      jugé=jugé+facteurPonderation*(1-pD);
+    }
+    console.log(jugé)
+    jugé=floor(jugé)
+    console.log("arpès l'arrondi",jugé)
+    console.log("id adverse",this.infoUserAdverse._id)
+    axios({ 
       method: 'POST',
       url: 'http://137.74.196.13:5050/api/home/vote',
-      headers: {authorization: 'Bearer ' + this.state.currentToken},
-      data: {
+      headers: {authorization: 'Bearer '+this.state.currentToken},
+      data: { 
         userId: this.infoUserAdverse._id,
-        Score: jugé,
-      },
+        Score : jugé
+      } 
     })
-      .then(res => {
-        console.log(res);
-        this.averageDown();
-        this.addHisotryUser();
-      })
-      .catch(err => {
-        console.log(err);
-      });
+    .then((res)=>{
+      if(this.state.commentUser!="" && this.state.commentUser!=null){
+        alert("comment sent")
+        this._sendComment()
+      }
+      console.log(res)
+      this.averageUp()
+      this.addHisotryUser()
+    })
+    .catch((err)=>{
+      console.log(err)
+    })
+    /*
+    else{
+      alert("else")
+      juge=juge+facteurPonderation*(1-pD);
+    }*/
+  }
+
+  _downScore(){
+    let juge= this.state.scoreUser;
+    let jugé = this.infoUserAdverse.Score;
+    let facteurPonderation = 20;
+    var D = juge-jugé;
+    var pD = 1/(1+pow(10,-D/400));
+    if(pD>0.95){
+      facteurPonderation=50;
+      jugé=jugé+facteurPonderation*(0-pD);
+    }
+    if(pD>0.7){
+      facteurPonderation = 12;
+      jugé=jugé+facteurPonderation*(0-pD);
+    }
+    if(pD<0.3){
+      facteurPonderation = 32;
+      jugé=jugé+facteurPonderation*(0-pD);
+    }
+    else{
+      jugé=jugé+facteurPonderation*(0-pD);
+    }
+    console.log(jugé)
+    jugé=floor(jugé)
+    console.log("arpès l'arrondi",jugé)
+    console.log("id adverse",this.infoUserAdverse._id)
+    axios({ 
+      method: 'POST',
+      url: 'http://137.74.196.13:5050/api/home/vote',
+      headers: {authorization: 'Bearer '+this.state.currentToken},
+      data: { 
+        userId: this.infoUserAdverse._id,
+        Score : jugé
+      } 
+    })
+    .then((res)=>{
+      if(this.state.commentUser!="" && this.state.commentUser!=null){
+        this._sendComment()
+      }
+      console.log(res)
+      this.averageDown()
+      this.addHisotryUser()
+    })
+    .catch((err)=>{
+      console.log(err)
+    })
     //Users[0].score = juge;
     //this.setState({scoreA : floor(juge)})
   }
 
+
+  eraseComment = () => {
+    this.setState({commentUser:""})
+    this.commentTextInput.clear()
+
+  }
   confirmReport = () => {
     axios({
       method: 'POST',
@@ -556,23 +509,17 @@ export default class HomeScreen extends React.Component {
           <Text> Hey, how you doing {this.state.nameUser}? </Text>
         </View>
         <View style={{flex: 1}}>{this.renderUsers()}</View>
-        <View>
-          <Slider
-            style={{alignSelf: 'center', width: SCREEN_WIDTH - 20, padding: 10}}
-            minimumValue={0}
-            maximumValue={10}
-            step={1}
-            value={this.state.sliderValue}
-            onValueChange={val => this.setState({sliderValue: val})}
-          />
-          <Text style={{alignSelf: 'center'}}>{this.state.sliderValue}/10</Text>
-        </View>
-        <View style={{height: 35, marginLeft: 15}}>
+        <KeyboardAvoidingView  behavior='position' keyboardVerticalOffset={40} enabled>
+            <TextInput style={styles.input}
+            ref={input=>{this.commentTextInput = input}}
+            onChangeText={(value) => this.setState({commentUser:value})}
+            placeholder="Leave a comment (optional)"
+            multiline={true}
+            onKeyPress={this.hideKeyboard}
+            /> 
+            </KeyboardAvoidingView>
+        <View style={{height: 17, marginLeft: 15}}>
           <Text style={{fontWeight: 'bold'}}>{this.infoUserAdverse.name} </Text>
-          <Text style={{fontStyle: 'italic'}}>
-            {' '}
-            Score: {this.infoUserAdverse.Score}
-          </Text>
           <Text>Category : {this.infoUserAdverse.imageCategory}</Text>
         </View>
         <View
@@ -589,6 +536,7 @@ export default class HomeScreen extends React.Component {
             </Text>
           </TouchableOpacity>
         </View>
+        
         <Modal
           onSwipeComplete={() => this.setState({isModaleVisible: false})}
           swipeDirection={['up', 'left', 'down', 'right']}
@@ -646,54 +594,17 @@ export default class HomeScreen extends React.Component {
     fontSize: 20,
     marginBottom: 12,
   },
+  input: {
+    margin: 15,
+    height: 100,
+    borderColor: 'grey',
+    borderWidth: 1,
+    color:'red'
+ },
 });
 
 
 
 /*
-      Remove the panHandlers here code :
-
-
-
-
-
-
-      <Animated.View style={{ opacity: this.reportOpacity, position: 'absolute', top: 50, right: 40, zIndex: 1000 }}>
-                    <Text style={{ borderWidth: 1, borderColor: 'red', color: 'red', fontSize: 32, fontWeight: '800', padding: 10 }}>REPORT USER </Text>
-                  </Animated.View>
-
-
-
-
-In the render users first case :
-<Animated.View
-                {...this.PanResponder.panHandlers}
-                key={item._id} style={[this.rotateAndTranslate , { height: SCREEN_HEIGHT - 300, width: SCREEN_WIDTH, padding: 10, position: 'absolute' }]}>
-                  <Animated.View style={{ opacity: this.likeOpacity, transform: [{ rotate: '-30deg' }], position: 'absolute', top: 50, left: 40, zIndex: 1000 }}>
-                    <Text style={{ borderWidth: 1, borderColor: 'green', color: 'green', fontSize: 32, fontWeight: '800', padding: 10 }}>++</Text>
-                  </Animated.View>
-                  <Animated.View style={{ opacity: this.dislikeOpacity, transform: [{ rotate: '30deg' }], position: 'absolute', top: 50, right: 40, zIndex: 1000 }}>
-                    <Text style={{ borderWidth: 1, borderColor: 'red', color: 'red', fontSize: 32, fontWeight: '800', padding: 10 }}>--</Text>
-                  </Animated.View>
-
-
-                <Image
-                  style={{ flex: 1, height: null, width: null, resizeMode: 'cover', borderRadius: 20 }}
-                  source={{uri:"http://137.74.196.13:5050/"+item.userImage}} />
-              </Animated.View>
-
-Second case in render users :
-<Animated.View
-                key={item._id} style={[{
-                  opacity: this.nextCardOpacity,
-                  transform: [{scale: this.nextCardScale}],
-                  height: SCREEN_HEIGHT - 220, width: SCREEN_WIDTH, padding: 10, position: 'absolute' }]}>
-                <Image
-                  style={{ flex: 1, height: null, width: null, resizeMode: 'cover', borderRadius: 20 }}
-                  source={item.uri} />
-
-              </Animated.View>
-
-              Remplacer les Animated view par des View et supprimer les animations en props
 
                   */

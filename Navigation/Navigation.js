@@ -10,6 +10,7 @@ import SettingScreen from '../screens/SettingScreen';
 import { createStackNavigator } from 'react-navigation-stack';
 import LegalTerms from '../screens/LegalTerms';
 import Help from '../screens/Help';
+import ImageScreen from '../screens/ImageScreen';
 
 const TabNavigator = createBottomTabNavigator(
     {
@@ -27,11 +28,24 @@ const TabNavigator = createBottomTabNavigator(
 
         }
     },
+    Gallery : { screen : ImageScreen,
+        navigationOptions : {
+            tabBarIcon : ({tintColor}) => (
+                <Icon
+                name='image'
+                type='material-community'
+                size={22}
+                color={tintColor}
+            />
+            )
+        }
+
+    },
     Profile: {screen : ProfileScreen,
             navigationOptions :{
             tabBarIcon : ({tintColor}) => (
                 <Icon
-                    name='pencil-outline'
+                    name='account'
                     type='material-community'
                     size={22}
                     color={tintColor}

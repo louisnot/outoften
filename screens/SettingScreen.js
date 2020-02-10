@@ -13,7 +13,7 @@ import {
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const privacyUrl =
-  'https://www.privacypolicygenerator.info/live.php?token=vx2u7OnoAjOEMRwFQ8UwXRuCca4wPjmD';
+  'https://www.privacypolicygenerator.info/download.php?lang=en&token=Ev4bxZrAHQm8YZrhohcRJck4NqKY5h2p';
 export default class SettingScreen extends React.Component {
   constructor(props) {
     super(props);

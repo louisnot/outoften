@@ -8,14 +8,16 @@ import {
   Dimensions,
   Platform,
   Picker,
+  SafeAreaView,
 } from 'react-native';
 import {Button} from 'react-native-elements';
 import ImagePicker from 'react-native-image-picker';
 import axios from 'axios';
-import {TouchableOpacity} from 'react-native-gesture-handler';
+import {TouchableOpacity, FlatList} from 'react-native-gesture-handler';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
+
 
 const createFormData = (photo, body) => {
   const data = new FormData();
@@ -46,6 +48,7 @@ export default class ProfileScreen extends React.Component {
       editProfile: 0,
       photo: null,
       photoCat : null,
+      dataSource : [],
     };
   }
 
@@ -136,7 +139,22 @@ export default class ProfileScreen extends React.Component {
       });
   }
 };
-
+  fecthUserComment = () => {
+    console.log("fech comment")
+    axios({
+      method:'GET',
+      url:'http://137.74.196.13:5050/api/home/commentlist/'+this.state.userId
+    })
+    .then((res) => {
+      for(let k = 0;k<res.data.length;k++){
+        this.state.dataSource.push(res.data[k])
+      }
+      console.log(this.state.dataSource)
+    })
+    .catch((err)=>{
+      console.log(err);
+    })
+  }
   componentDidMount() {
     this.setState({currentToken: this.props.screenProps.jwt});
     const header = {
@@ -155,6 +173,7 @@ export default class ProfileScreen extends React.Component {
       .catch(error => {
         console.log(error);
       });
+    this.fecthUserComment()
   }
   updateInfo = () => {
     const newHeader = {
@@ -187,15 +206,19 @@ export default class ProfileScreen extends React.Component {
         <View style={{flex: 1}}>
           <View
             style={{
-              height: 60,
+              height: 70,
               fontSize: 32,
-              justifyContent: 'center',
+              justifyContent: 'space-evenly',
+              flexDirection:'row',
               alignItems: 'center',
               top: 15,
             }}>
             <Text style={{fontSize: 18}}>
               Looking great {this.state.dataName}
             </Text>
+            <TouchableOpacity onPress={()=> this.setState({editProfile: 2})}>
+              <Text>See comments</Text>
+            </TouchableOpacity>
           </View>
           <View
             style={{
@@ -256,7 +279,6 @@ export default class ProfileScreen extends React.Component {
               onValueChange={(itemValue)=> this.setState({photoCat:itemValue})}>
                 <Picker.Item label="None" value={null} />
                 <Picker.Item label="Pet" value="pet" />
-                <Picker.Item label="Friends and Me" value="friends" />
                 <Picker.Item label="Food" value="food" />
                 <Picker.Item label="Landscapes" value="landscape" />
                 <Picker.Item label="Art" value="art" />
@@ -278,6 +300,35 @@ export default class ProfileScreen extends React.Component {
         </View>
         </View>
       );
+    }
+    if(this.state.editProfile==2){
+      if(this.state.dataSource.length!=0)
+      {
+        return(
+        <SafeAreaView style={{flex:1,alignContent:'center',justifyContent:'center'}}>
+          <Text>Comment here</Text>
+          <View>
+            <FlatList 
+              data={this.state.dataSource}
+              renderItem={({item})=><Text>{item.messageContent}</Text>}
+              keyExtractor={ item => item._id}
+            />
+          </View>
+          <TouchableOpacity  style={{backgroundColor: '#1CAFD3',width: SCREEN_WIDTH / 4,height: 40,borderRadius: 20,}}  onPress={() => this.setState({editProfile: 0})}>
+            <Text style={{textAlign: 'center', lineHeight: 35}}>Back</Text>
+          </TouchableOpacity>
+        </SafeAreaView>
+      )}
+      else{
+        return(
+        <SafeAreaView style={{flex:1,alignContent:'center',justifyContent:'center'}}>
+          <Text>No comment, check back later.</Text>
+          <TouchableOpacity  style={{backgroundColor: '#1CAFD3',width: SCREEN_WIDTH / 4,height: 40,borderRadius: 20,}}  onPress={() => this.setState({editProfile: 0})}>
+            <Text style={{textAlign: 'center', lineHeight: 35}}>Back</Text>
+          </TouchableOpacity>
+        </SafeAreaView>
+
+        )}
     }
   }
 }
