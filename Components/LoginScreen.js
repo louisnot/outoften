@@ -26,7 +26,7 @@ export default class LoginScreen extends React.Component{
         })
     }
     loginFromApi() {
-        axios.post('http://137.74.196.13:5050/api/home/login/', {
+        axios.post('https://outoften.fr/api/home/login/', {
             email: this.state.email,
             password:this.state.password
         },)

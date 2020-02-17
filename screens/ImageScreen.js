@@ -29,7 +29,7 @@ export default class ImageScreen extends React.Component{
     getUserImage = () => {
         axios({
             method:'GET',
-            url:'http://137.74.196.13:5050/api/new/users/'
+            url:'https://outoften.fr/api/new/users/'
           })
           .then((res) => {
             for(let k = 0;k<res.data.length;k++){
@@ -68,7 +68,7 @@ export default class ImageScreen extends React.Component{
                 <FlatList 
                     data={this.state.dataSource}
                     keyExtractor={item => item.id}
-                    renderItem={({item})=><Image source={{uri:"http://137.74.196.13:5050/"+item.userImage}} style={{height:140,width:140}}/>}
+                    renderItem={({item})=><Image source={{uri:"https://outoften.fr/"+item.userImage}} style={{height:140,width:140}}/>}
                 />
             </SafeAreaView>  
         )

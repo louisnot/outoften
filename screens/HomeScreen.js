@@ -21,19 +21,14 @@ import {TouchableOpacity} from 'react-native-gesture-handler';
 import DropdownAlert from 'react-native-dropdownalert';
 
 /*-----------------------------------------*/
-const userAPI = 'http://137.74.196.13:5050/api/new/users';
-const urlHistory = 'http://137.74.196.13:5050/api/vote/historyvote/';
-const urlArrayHistory = 'http://137.74.196.13:5050/api/vote/array/';
+const userAPI = 'https://outoften.fr/api/new/users';
+const urlHistory = 'https://outoften.fr/api/vote/historyvote/';
+const urlArrayHistory = 'https://outoften.fr/api/vote/array/';
 const realUsers = [];
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
-const DismissKeyboard = ({ children}) => {
-  <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-   {children} 
-  </TouchableWithoutFeedback>
-}
 //randomInt(500,1500);
 
 export default class HomeScreen extends React.Component {
@@ -140,7 +135,7 @@ export default class HomeScreen extends React.Component {
     };
     console.log(header);
     axios
-      .get('http://137.74.196.13:5050/api/posts', {
+      .get('https://outoften.fr/api/posts', {
         headers: header,
       })
       .then(response => {
@@ -209,7 +204,7 @@ export default class HomeScreen extends React.Component {
       authorization: 'Bearer ' + this.state.currentToken,
     };
     axios
-      .get('http://137.74.196.13:5050/api/new/' + this.state.idUser, {
+      .get('https://outoften.fr/api/new/' + this.state.idUser, {
         headers: newHeader,
       })
       .then(res => {
@@ -251,7 +246,7 @@ export default class HomeScreen extends React.Component {
 
                 <Image
                   style={{ flex: 1, height: null, width: null, resizeMode: 'cover', borderRadius: 20 }}
-                  source={{uri:"http://137.74.196.13:5050/"+item.userImage}} />
+                  source={{uri:"https://outoften.fr/"+item.userImage}} />
               </Animated.View>
               
             )
@@ -306,7 +301,7 @@ export default class HomeScreen extends React.Component {
   
   averageDown = () => {
     axios
-      .patch('http://137.74.196.13:5050/api/vote/downvote/' + this.state.idUser)
+      .patch('https://outoften.fr/api/vote/downvote/' + this.state.idUser)
       .then(res => {
         console.log(res);
       })
@@ -316,7 +311,7 @@ export default class HomeScreen extends React.Component {
   };
   averageUp = () => {
     axios
-      .patch('http://137.74.196.13:5050/api/vote/upvote/' + this.state.idUser)
+      .patch('https://outoften.fr/api/vote/upvote/' + this.state.idUser)
       .then(res => {
         console.log(res);
       })
@@ -328,7 +323,7 @@ export default class HomeScreen extends React.Component {
   _sendComment = () => {
     axios({
       method:'POST',
-      url: 'http://137.74.196.13:5050/api/home/comment',
+      url: 'https://outoften.fr/api/home/comment',
       data:{
         idUser : this.infoUserAdverse._id,
         message : this.state.commentUser
@@ -390,7 +385,7 @@ export default class HomeScreen extends React.Component {
     console.log("id adverse",this.infoUserAdverse._id)
     axios({ 
       method: 'POST',
-      url: 'http://137.74.196.13:5050/api/home/vote',
+      url: 'https://outoften.fr/api/home/vote',
       headers: {authorization: 'Bearer '+this.state.currentToken},
       data: { 
         userId: this.infoUserAdverse._id,
@@ -443,7 +438,7 @@ export default class HomeScreen extends React.Component {
     console.log("id adverse",this.infoUserAdverse._id)
     axios({ 
       method: 'POST',
-      url: 'http://137.74.196.13:5050/api/home/vote',
+      url: 'https://outoften.fr/api/home/vote',
       headers: {authorization: 'Bearer '+this.state.currentToken},
       data: { 
         userId: this.infoUserAdverse._id,
@@ -474,7 +469,7 @@ export default class HomeScreen extends React.Component {
   confirmReport = () => {
     axios({
       method: 'POST',
-      url: 'http://137.74.196.13:5050/api/report/submit/' + this.state.idUser,
+      url: 'https://outoften.fr/api/report/submit/' + this.state.idUser,
       headers: {authorization: 'Bearer ' + this.state.currentToken},
       data: {
         idReporter: this.state.idUser,

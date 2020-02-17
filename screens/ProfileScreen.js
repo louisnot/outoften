@@ -58,7 +58,7 @@ export default class ProfileScreen extends React.Component {
         <React.Fragment>
           <Image
             source={{
-              uri: 'http://137.74.196.13:5050/uploads/avatardefault.png',
+              uri: 'https://outoften.fr/uploads/avatardefault.png',
             }}
             style={{
               width: SCREEN_WIDTH - 20,
@@ -72,7 +72,7 @@ export default class ProfileScreen extends React.Component {
       return (
         <React.Fragment>
           <Image
-            source={{uri: 'http://137.74.196.13:5050/' + this.state.dataPhoto}}
+            source={{uri: 'https://outoften.fr/' + this.state.dataPhoto}}
             style={{
               width: SCREEN_WIDTH - 20,
               height: SCREEN_HEIGHT - 300,
@@ -107,7 +107,7 @@ export default class ProfileScreen extends React.Component {
   handleCategoryUpload = () =>{
     axios({
       method:'POST',
-      url:'http://137.74.196.13:5050/api/new/cat/'+this.state.userId,
+      url:'https://outoften.fr/api/new/cat/'+this.state.userId,
       data:{ imageCategory : this.state.photoCat}
     })
     .then(response => {
@@ -123,7 +123,7 @@ export default class ProfileScreen extends React.Component {
     }
     else{
       this.handleCategoryUpload()
-    fetch('http://137.74.196.13:5050/api/new/uploads/' + this.state.userId, {
+    fetch('https://outoften.fr/api/new/uploads/' + this.state.userId, {
       method: 'POST',
       body: createFormData(this.state.photo)
     })
@@ -143,7 +143,7 @@ export default class ProfileScreen extends React.Component {
     console.log("fech comment")
     axios({
       method:'GET',
-      url:'http://137.74.196.13:5050/api/home/commentlist/'+this.state.userId
+      url:'https://outoften.fr/api/home/commentlist/'+this.state.userId
     })
     .then((res) => {
       for(let k = 0;k<res.data.length;k++){
@@ -162,7 +162,7 @@ export default class ProfileScreen extends React.Component {
     };
     console.log(header);
     axios
-      .get('http://137.74.196.13:5050/api/posts', {
+      .get('https://outoften.fr/api/posts', {
         headers: header,
       })
       .then(response => {
@@ -180,7 +180,7 @@ export default class ProfileScreen extends React.Component {
       authorization: 'Bearer ' + this.state.currentToken,
     };
     axios
-      .get('http://137.74.196.13:5050/api/new/' + this.state.userId, {
+      .get('https://outoften.fr/api/new/' + this.state.userId, {
         headers: newHeader,
       })
       .then(res => {

@@ -19,7 +19,6 @@ export default class RegisterScreen extends React.Component{
             password:null,
             name:"",
             age:undefined,
-            sexe:null,
             errorRegistering: '',
             idUser : null,
             isLoading : false,
@@ -64,7 +63,7 @@ export default class RegisterScreen extends React.Component{
         registrationFailed () {
                 if(!this.ageVerification()||this.nameVerification()){
                     return(
-                        this.dropDownAlertRef.alertWithType('error','Error','Your name, age or sexe includes error please check info are correct.')
+                        this.dropDownAlertRef.alertWithType('error','Error','Your name or age includes error please check info are correct.')
                     )
                 }
                 else{
@@ -86,7 +85,7 @@ export default class RegisterScreen extends React.Component{
             else
             {
             this.setState({errorRegistering: '', isLoading:true})
-            axios.post('http://137.74.196.13:5050/api/new/register',{
+            axios.post('https://outoften.fr/api/new/register',{
                     email : this.state.email,
                     password : this.state.password,
                     name : this.state.name,
