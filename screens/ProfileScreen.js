@@ -14,7 +14,8 @@ import {Button} from 'react-native-elements';
 import ImagePicker from 'react-native-image-picker';
 import axios from 'axios';
 import {TouchableOpacity, FlatList} from 'react-native-gesture-handler';
-
+import { Loading } from '../Components/common';
+import LinearGradient from 'react-native-linear-gradient'
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
@@ -35,6 +36,15 @@ Object.keys(body).forEach(key => {
   });
 */
 
+function Comment({ comment }) {
+  return (
+    <View style={styles.commentBox}>
+      <Text style={styles.comment}>{comment}</Text>
+    </View>
+  );
+}
+
+
 export default class ProfileScreen extends React.Component {
   constructor(props) {
     super(props);
@@ -49,6 +59,7 @@ export default class ProfileScreen extends React.Component {
       photo: null,
       photoCat : null,
       dataSource : [],
+      isLoading: false,
     };
   }
 
@@ -111,13 +122,14 @@ export default class ProfileScreen extends React.Component {
       data:{ imageCategory : this.state.photoCat}
     })
     .then(response => {
-      console.log('upload success', response)
+      console.log('cat success', response)
     })
     .catch(err=>{
       console.log(err)
     })
   };
   handleUploadPhoto = () => {
+    this.setState({isLoading : true})
     if(this.state.photoCat==null){
       alert('Select a valid category!')
     }
@@ -130,6 +142,7 @@ export default class ProfileScreen extends React.Component {
       .then(response => response.json())
       .then(response => {
         console.log('upload success', response);
+        this.setState({isLoading : false})
         this.setState({dataPhoto: response.path});
         console.log(this.state.dataPhoto);
         alert('Photo successfully changed!');
@@ -140,7 +153,7 @@ export default class ProfileScreen extends React.Component {
   }
 };
   fecthUserComment = () => {
-    console.log("fech comment")
+    console.log("fetch comment", this.state.userId)
     axios({
       method:'GET',
       url:'https://outoften.fr/api/home/commentlist/'+this.state.userId
@@ -173,7 +186,10 @@ export default class ProfileScreen extends React.Component {
       .catch(error => {
         console.log(error);
       });
-    this.fecthUserComment()
+      var that = this;
+      setTimeout(function() {
+        that.fecthUserComment();
+      }, 4000);
   }
   updateInfo = () => {
     const newHeader = {
@@ -242,20 +258,24 @@ export default class ProfileScreen extends React.Component {
               justifyContent: 'space-evenly',
               marginBottom: 10,
             }}>
-            <TouchableOpacity
-              style={styles.editSettings}
-              onPress={() => this.setState({editProfile: 1})}>
-              <Text style={{textAlign: 'center', lineHeight: 35}}>
-                Edit photo
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.editSettings}
-              onPress={() => this.props.navigation.navigate('Setting')}>
-              <Text style={{textAlign: 'center', lineHeight: 35}}>
-                Settings
-              </Text>
-            </TouchableOpacity>
+            <LinearGradient style={styles.linearGradient} colors={['#3a7bd5','#00b4db']}>
+              <TouchableOpacity
+                style={styles.editSettings}
+                onPress={() => this.setState({editProfile: 1})}>
+                <Text style={{textAlign: 'center', lineHeight: 35}}>
+                  Edit photo
+                </Text>
+              </TouchableOpacity>
+            </LinearGradient>
+            <LinearGradient style={styles.linearGradient} colors={['#3a7bd5','#00b4db']}>
+                <TouchableOpacity
+                  style={styles.editSettings}
+                  onPress={() => this.props.navigation.navigate('Setting')}>
+                  <Text style={{textAlign: 'center', lineHeight: 35}}>
+                    Settings
+                  </Text>
+                </TouchableOpacity>
+              </LinearGradient>
           </View>
         </View>
       );
@@ -271,7 +291,10 @@ export default class ProfileScreen extends React.Component {
                 source={{uri: photo.uri}}
                 style={{width: 300, height: 300}}
               />
-              <Button title="Upload" onPress={this.handleUploadPhoto} />
+              { !this.state.isLoading ?
+                <Button title="Upload" onPress={this.handleUploadPhoto} /> :
+                <Loading size={'large'} />
+              }
               <View style={{alignItems:'center'}}>
               {this.errorPick()}
               <Picker selectedValue={this.state.photoCat}
@@ -293,10 +316,16 @@ export default class ProfileScreen extends React.Component {
               justifyContent: 'space-evenly',
               marginBottom: 10,
             }}>
-        <Button title="Choose Photo" onPress={this.handleChoosePhoto} />
-        <TouchableOpacity  style={{backgroundColor: '#1CAFD3',width: SCREEN_WIDTH / 4,height: 40,borderRadius: 20,}}  onPress={() => this.setState({editProfile: 0})}>
-            <Text style={{textAlign: 'center', lineHeight: 35}}>Back</Text>
-          </TouchableOpacity>
+        <LinearGradient style={styles.linearGradient} colors={['#3a7bd5','#00b4db']}>
+          <TouchableOpacity  style={{color:'white',width: SCREEN_WIDTH / 4,height: 40,borderRadius: 20,}}  onPress={() => this.handleChoosePhoto()}>
+              <Text style={{textAlign: 'center', lineHeight: 35}}>Choose Photo</Text>
+            </TouchableOpacity>
+          </LinearGradient>
+        <LinearGradient style={styles.linearGradient} colors={['#3a7bd5','#00b4db']}>
+          <TouchableOpacity  style={{color:'white',width: SCREEN_WIDTH / 4,height: 40,borderRadius: 20,}}  onPress={() => this.setState({editProfile: 0})}>
+              <Text style={{textAlign: 'center', lineHeight: 35}}>Back</Text>
+            </TouchableOpacity>
+          </LinearGradient>
         </View>
         </View>
       );
@@ -305,27 +334,29 @@ export default class ProfileScreen extends React.Component {
       if(this.state.dataSource.length!=0)
       {
         return(
-        <SafeAreaView style={{flex:1,alignContent:'center',justifyContent:'center'}}>
+        <SafeAreaView style={{flex:1,alignItems:'center',justifyContent:'center'}}>
           <Text>Comment here</Text>
-          <View>
             <FlatList 
               data={this.state.dataSource}
-              renderItem={({item})=><Text>{item.messageContent}</Text>}
+              renderItem={({item})=><Comment comment={item.messageContent}/>}
               keyExtractor={ item => item._id}
             />
-          </View>
-          <TouchableOpacity  style={{backgroundColor: '#1CAFD3',width: SCREEN_WIDTH / 4,height: 40,borderRadius: 20,}}  onPress={() => this.setState({editProfile: 0})}>
-            <Text style={{textAlign: 'center', lineHeight: 35}}>Back</Text>
-          </TouchableOpacity>
+          <LinearGradient style={[styles.linearGradient,{width:100}]} colors={['#3a7bd5','#00b4db']}>
+            <TouchableOpacity  style={{color:'white',}}  onPress={() => this.setState({editProfile: 0})}>
+              <Text style={{textAlign: 'center', lineHeight: 35}}>Back</Text>
+            </TouchableOpacity>
+          </LinearGradient>
         </SafeAreaView>
       )}
       else{
         return(
-        <SafeAreaView style={{flex:1,alignContent:'center',justifyContent:'center'}}>
+        <SafeAreaView style={{flex:1,alignItems:'center',justifyContent:'center'}}>
           <Text>No comment, check back later.</Text>
-          <TouchableOpacity  style={{backgroundColor: '#1CAFD3',width: SCREEN_WIDTH / 4,height: 40,borderRadius: 20,}}  onPress={() => this.setState({editProfile: 0})}>
-            <Text style={{textAlign: 'center', lineHeight: 35}}>Back</Text>
+          <LinearGradient style={[styles.linearGradient,{width:100}]} colors={['#3a7bd5','#00b4db']}>
+          <TouchableOpacity  style={{width: SCREEN_WIDTH / 4,height: 40,borderRadius: 20,}}  onPress={() => this.setState({editProfile: 0})}>
+            <Text style={{color:'white',textAlign: 'center', lineHeight: 35}}>Back</Text>
           </TouchableOpacity>
+          </LinearGradient>
         </SafeAreaView>
 
         )}
@@ -339,9 +370,20 @@ const styles = StyleSheet.create({
     color: 'grey',
   },
   editSettings: {
-    backgroundColor: '#1CAFD3',
     width: SCREEN_WIDTH / 4,
     height: 40,
     borderRadius: 20,
   },
+  linearGradient: {
+    borderRadius: 20
+  },
+  commentBox:{
+    backgroundColor: '#ADD8E6',
+    padding: 34,
+    marginVertical: 8,
+    marginHorizontal: 16,
+  },
+  comment:{
+    fontWeight:'bold'
+  }
 });

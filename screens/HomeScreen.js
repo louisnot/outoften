@@ -14,11 +14,13 @@ import {
   Keyboard,
   TouchableWithoutFeedback
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import {randomInt, pow, floor} from 'mathjs';
 import axios from 'axios';
 import Modal from 'react-native-modal';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import DropdownAlert from 'react-native-dropdownalert';
+import { Icon } from 'react-native-elements';
 
 /*-----------------------------------------*/
 const userAPI = 'https://outoften.fr/api/new/users';
@@ -28,8 +30,6 @@ const realUsers = [];
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
-
-//randomInt(500,1500);
 
 export default class HomeScreen extends React.Component {
   constructor(props) {
@@ -47,8 +47,11 @@ export default class HomeScreen extends React.Component {
       readyRender: 0,
       voteHistory: [],
       ready: false,
-      isModaleVisible: false,
-      commentUser : ""
+      isReportVisible: false,
+      isHelpVisible: false,
+      commentUser : "",
+      needHelp:false,
+      arrowLeft:'<',
     };
         this.PanResponder = PanResponder.create({
           onStartShouldSetPanResponder: (evt, gestureState) => true,
@@ -153,6 +156,7 @@ export default class HomeScreen extends React.Component {
       Keyboard.dismiss();
     }
   }
+
   historyUsers = () => {
     axios({
       method: 'GET',
@@ -168,15 +172,18 @@ export default class HomeScreen extends React.Component {
         'compare with realUsers',
         realUsersId,
       );
-      //response.data[0].historyVote[k]
-      for (let k = 0; k <= realUsersId.length; k++) {
-        if (response.data[0].historyVote.includes(realUsersId[k])) {
-          console.log("it's in");
-          console.log('ici le slice', realUsers.splice(0, 1));
-        } else {
+      let resHistory = response.data[0].historyVote
+      let count = 0;
+      for (let k = 0; k < realUsersId.length; k++) {
+        if (resHistory.includes(realUsersId[k])) {
+          console.log("it's in need splice", realUsers.splice(0+count,1));
+        } 
+        else {
+          count +=1;
           console.log("ain't in");
         }
       }
+      console.log(realUsers)
     });
   };
 
@@ -185,17 +192,17 @@ export default class HomeScreen extends React.Component {
       .get(userAPI) //Array from all users in DB
       .then(res => {
         for (var k = 0; k < res.data.length; k++) {
-          if (this.state.idUser == res.data[k]._id) {
-          } else if (this.state.defaultAvatar == res.data[k].userImage) {
-          } else {
+          if (this.state.idUser == res.data[k]._id) 
+          {} 
+          else if (this.state.defaultAvatar == res.data[k].userImage) 
+          {console.log("no photo")} 
+          else 
+          {
             realUsers.push(res.data[k]);
           }
         }
         console.log('real users', realUsers);
-        var that = this;
-        setTimeout(function() {
-          that.historyUsers();
-        }, 200);
+        this.historyUsers()
       });
   };
 
@@ -248,7 +255,6 @@ export default class HomeScreen extends React.Component {
                   style={{ flex: 1, height: null, width: null, resizeMode: 'cover', borderRadius: 20 }}
                   source={{uri:"https://outoften.fr/"+item.userImage}} />
               </Animated.View>
-              
             )
           }
           else {
@@ -281,7 +287,7 @@ export default class HomeScreen extends React.Component {
 
     addHisotryUser =  () => {
     let urlHistory2 = urlHistory + this.state.idUser;
-    console.log(urlHistory2);
+    console.log("url history", urlHistory2);
     axios({
       method: 'PATCH',
       url: urlHistory2,
@@ -410,7 +416,6 @@ export default class HomeScreen extends React.Component {
       juge=juge+facteurPonderation*(1-pD);
     }*/
   }
-
   _downScore(){
     let juge= this.state.scoreUser;
     let jugé = this.infoUserAdverse.Score;
@@ -460,11 +465,12 @@ export default class HomeScreen extends React.Component {
     //this.setState({scoreA : floor(juge)})
   }
 
-
+  displayHelp = () => {
+    
+  }
   eraseComment = () => {
     this.setState({commentUser:""})
     this.commentTextInput.clear()
-
   }
   confirmReport = () => {
     axios({
@@ -477,7 +483,7 @@ export default class HomeScreen extends React.Component {
       },
     }).then(res => {
       console.log(res);
-      this.setState({isModaleVisible: false});
+      this.setState({isReportVisible: false});
       this.setState({currentIndex: this.state.currentIndex + 1});
       this.position.setValue({x: 0, y: 0});
       this.addHisotryUser();
@@ -492,17 +498,22 @@ export default class HomeScreen extends React.Component {
   render() {
     return (
       <View style={{flex: 1}}>
-        <StatusBar backgroundColor="blue" barStyle="default" />
         <View
           style={{
             height: 60,
             alignItems: 'center',
             justifyContent: 'center',
             top: 15,
-            color: 'orange',
           }}>
           <Text> Hey, how you doing {this.state.nameUser}? </Text>
         </View>
+        <Icon 
+          name='question'
+          type='font-awesome'
+          color='#3a7bd5'
+          iconStyle={{position:'absolute',bottom:0.3,left:SCREEN_WIDTH/1.1,zIndex:1}}
+          onPress={()=>this.setState({isHelpVisible:true})}
+          />
         <View style={{flex: 1}}>{this.renderUsers()}</View>
         <KeyboardAvoidingView  behavior='position' keyboardVerticalOffset={40} enabled>
             <TextInput style={styles.input}
@@ -523,23 +534,24 @@ export default class HomeScreen extends React.Component {
             justifyContent: 'space-evenly',
             marginBottom: 10,
           }}>
-          <TouchableOpacity
-            style={styles.reportButton}
-            onPress={() => this.setState({isModaleVisible: true})}>
-            <Text style={{textAlign: 'center', lineHeight: 35}}>
-              Report user
-            </Text>
-          </TouchableOpacity>
-        </View>
-        
+          <LinearGradient colors={['#F00000','#DC281E']}>
+            <TouchableOpacity
+              style={styles.reportButton}
+              onPress={() => this.setState({isReportVisible: true})}>
+              <Text style={{fontWeight:'bold',color:'white',textAlign: 'center', lineHeight: 35}}>
+                Report user
+              </Text>
+            </TouchableOpacity>
+            </LinearGradient>
+        </View>  
         <Modal
-          onSwipeComplete={() => this.setState({isModaleVisible: false})}
-          swipeDirection={['up', 'left', 'down', 'right']}
+          onSwipeComplete={() => this.setState({isReportVisible: false})}
+          swipeDirection={['up', 'down',]}
           style={{height: 400}}
           backdropOpacity={0.2}
           coverScreen={false}
-          isVisible={this.state.isModaleVisible}
-          onBackdropPress={() => this.setState({isModaleVisible: false})}
+          isVisible={this.state.isReportVisible}
+          onBackdropPress={() => this.setState({isReportVisible: false})}
           style={{justifyContent: 'flex-end', margin: 0}}>
           <View style={styles.content}>
             <Text style={styles.contentTitle}>
@@ -549,8 +561,31 @@ export default class HomeScreen extends React.Component {
             <Button title="Yes" onPress={() => this.confirmReport()} />
             <Button
               title="No"
-              onPress={() => this.setState({isModaleVisible: false})}
+              onPress={() => this.setState({isReportVisible: false})}
             />
+          </View>
+        </Modal>
+        <Modal 
+        backdropOpacity={0.4}
+        animationIn="zoomInDown"
+        animationOut="zoomOutUp"
+        animationInTiming={850}
+        animationOutTiming={500}
+        onSwipeComplete={()=>this.setState({isHelpVisible:false})}
+        isVisible={this.state.isHelpVisible}
+        onBackdropPress={()=>this.setState({isHelpVisible:false})}
+        >
+          <View style={styles.contentHelp}>
+            <Text style={styles.headerModal}>Help</Text>
+            <Text style={styles.howToUse}>
+              First thing you see is the user's photo, at the bottom you can also see the<Text style={{color:'#3a7bd5',fontWeight:'bold'}}> Category</Text></Text>
+              <Text style={styles.howToUse}>Then you either swipe to the right if you like <Text style={{color:'green'}}>------></Text></Text>
+              <Text style={styles.howToUse}>Or you can swipe to the left if you do not like <Text style={{color:'red'}}> {this.state.arrowLeft}------</Text></Text>
+              <Text style={styles.howToUse}>You can leave a comment in the box below the photo end then swipe the photo to send it.</Text>
+              <View style={{paddingTop:40}}>
+                <Text style={styles.howToUse}>Finally, if you feel like a photo is unnapropirate you can hit the report <Text style={{color:'red',fontWeight:'bold'}}>button</Text></Text>
+              </View>
+            <View style={styles.categoryHelp}></View>
           </View>
         </Modal>
         <DropdownAlert ref={ref => (this.dropDownAlertRef = ref)} />
@@ -569,10 +604,9 @@ export default class HomeScreen extends React.Component {
     margin: 10,
     borderColor: 'lightgrey',
     borderRadius: 10,
-
-        },
+  },
   reportButton: {
-    backgroundColor: '#1CAFD3',
+    //backgroundColor: '#1CAFD3',
     width: SCREEN_WIDTH / 4,
     height: 40,
     borderRadius: 20,
@@ -584,6 +618,31 @@ export default class HomeScreen extends React.Component {
     alignItems: 'center',
     borderRadius: 4,
     borderColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  contentHelp:{
+    alignItems: 'center',
+  },
+  headerModal:{
+    color:'white',
+    fontSize:30,
+    fontWeight:'bold',
+    position:'absolute',
+    bottom:SCREEN_HEIGHT/2.5
+  },
+  howToUse:{
+    textAlign:'center',
+    color:'white',
+    fontSize:14
+  },
+  categoryHelp:{
+    position:'absolute',
+    top:SCREEN_HEIGHT/2.13,
+    right:SCREEN_WIDTH/1.48,
+    backgroundColor:'#3a7bd5',
+    height:3,
+    width:100,
+    borderRadius:2,
+    borderColor:'red'
   },
   contentTitle: {
     fontSize: 20,

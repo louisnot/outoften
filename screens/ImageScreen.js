@@ -68,7 +68,7 @@ export default class ImageScreen extends React.Component{
                 <FlatList 
                     data={this.state.dataSource}
                     keyExtractor={item => item.id}
-                    renderItem={({item})=><Image source={{uri:"https://outoften.fr/"+item.userImage}} style={{height:140,width:140}}/>}
+                    renderItem={({item})=><Image style={{flex:1,height:SCREEN_HEIGHT/2,width:SCREEN_WIDTH,borderRadius:20}} source={{uri:"https://outoften.fr/"+item.userImage}}/>}
                 />
             </SafeAreaView>  
         )

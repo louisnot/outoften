@@ -5,8 +5,7 @@ import DropdownAlert from 'react-native-dropdownalert';
 import axios from 'axios';
 import { Loading } from './common';
 import { ScrollView } from 'react-native-gesture-handler';
-
-
+import LinearGradient from 'react-native-linear-gradient';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
@@ -112,65 +111,76 @@ export default class RegisterScreen extends React.Component{
         if(this.state.EULA==0)
         {
             return(
-            <View style={{flex:1, alignItems: 'center', justifyContent:'center'}}>
-                <Text style={styles.RegisterTitle}>Register</Text>
-                    <Input
-                        autoCapitalize={"none"}
-                        label="Your email address"
-                        placeholder="hello@gmail.com"
-                        onChangeText={(text)=> this.setState({email:text})}
-                        value={this.state.email}
-                    >
-                    </Input>
-                    <Input
-                        label="Your password"
-                        secureTextEntry={true}
-                        placeholder="**********"
-                        onChangeText={(text)=> this.setState({password:text})}
-                        value={this.state.password}
-                    >
-                    </Input>
-                    <Input
-                        label="Your name"
-                        placeholder="Louis"
-                        onChangeText={(text)=> this.setState({name:text,lenName:this.state.name.length})}
-                        value={this.state.name}
-                    >
-                    </Input>
-                    {this.nameVerification()}
-                    <Input
-                        label="Your age"
-                        placeholder="Must be 18+"
-                        onChangeText={(text)=> this.setState({age:text})}
-                        value={this.state.age}
-                    >
-                    </Input>
-                    {this.ageVerification()}
-                    <TouchableOpacity onPress={() => this.setState({EULA:1})}>
-                        <Text style={{color:'#1CAFD3', fontSize:18}}>Read the user Licence Agreement</Text>
-                    </TouchableOpacity>
-                    <CheckBox 
-                        title='By checking this box I agree that I am 18 or older and I have read user License Agreement'
-                        containerStyle={{backgroundColor:'white', borderColor:'white'}}
-                        checkedColor='#1CAFD3'
-                        onPress={()=>this.checkBoxclick()}
-                        checked={this.state.checked}
-                    />
-                    <View style={{marginTop:50}}>
-                        {!this.state.isLoading ?
-                        <TouchableOpacity
-                        style={styles.loginButton} 
-                        onPress={()=>this.apiRegister()}>
-                            <Text style={{textAlign:'center', lineHeight:38}}>Register now! </Text>
-                        </TouchableOpacity>: <Loading size={'large'}/>}
-                        
-                        <TouchableOpacity
-                            onPress={this.props.authSwitch}>
-                        <Text style={{fontSize:18,textAlign:'center', lineHeight:38,color : '#1CAFD3'}}>I already have an account</Text> 
+                <LinearGradient style={styles.linearGradient} colors={['#3a7bd5','#00b4db']}>
+                <SafeAreaView style={{flex:1, alignItems: 'center', justifyContent:'center'}}>
+                    <Text style={styles.RegisterTitle}>Register</Text>
+                        <Input
+                            containerStyle={styles.input}
+                            labelStyle={{color:'white'}}
+                            inputStyle={styles.textinput}
+                            inputContainerStyle={{borderColor:'white'}}
+                            autoCapitalize={"none"}
+                            label="Your email address"
+                            placeholder="hello@gmail.com"
+                            onChangeText={(text)=> this.setState({email:text})}
+                            value={this.state.email}
+                        >
+                        </Input>
+                        <Input
+                            containerStyle={styles.input}
+                            labelStyle={{color:'white'}}
+                            inputStyle={styles.textinput}
+                            inputContainerStyle={{borderColor:'white'}}
+                            label="Your password"
+                            secureTextEntry={true}
+                            placeholder="**********"
+                            onChangeText={(text)=> this.setState({password:text})}
+                            value={this.state.password}
+                        >
+                        </Input>
+                        <Input
+                            containerStyle={styles.input}
+                            labelStyle={{color:'white'}}
+                            inputStyle={styles.textinput}
+                            inputContainerStyle={{borderColor:'white'}}
+                            label="Your name"
+                            placeholder="Louis"
+                            onChangeText={(text)=> this.setState({name:text,lenName:this.state.name.length})}
+                            value={this.state.name}
+                        >
+                        </Input>
+                        {this.nameVerification()}
+                        <Input
+                            containerStyle={styles.input}
+                            labelStyle={{color:'white'}}
+                            inputStyle={styles.textinput}
+                            inputContainerStyle={{borderColor:'white'}}
+                            label="Your age"
+                            placeholder="Must be 18+"
+                            onChangeText={(text)=> this.setState({age:text})}
+                            value={this.state.age}
+                        >
+                        </Input>
+                        {this.ageVerification()}
+                        <TouchableOpacity onPress={() => this.setState({EULA:1})}>
+                            <Text style={{color:'white', fontSize:18,paddingBottom:15, textDecorationLine:'underline'}}>Read the user Licence Agreement</Text>
                         </TouchableOpacity>
-                    </View>
-                    <DropdownAlert ref={ref => this.dropDownAlertRef = ref} />
-            </View>
+                        <Text style={{color:'black',fontWeight:'600',textAlign:'center'}}>By clicking register now button, I agree that I am 18 or older and I have read user License Agreement</Text> 
+                        <View style={{marginTop:50}}>
+                            {!this.state.isLoading ?
+                            <TouchableOpacity
+                            style={styles.loginButton} 
+                            onPress={()=>this.apiRegister()}>
+                                <Text style={{textAlign:'center', lineHeight:38, color:'white',fontWeight:'700',fontSize:16}}>Register now </Text>
+                            </TouchableOpacity>: <Loading size={'large'}/>}
+                            <TouchableOpacity
+                                onPress={this.props.authSwitch}>
+                            <Text style={{textAlign:'center',color : 'white',fontWeight:'500',textDecorationLine:'underline'}}>I already have an account</Text> 
+                            </TouchableOpacity>
+                        </View>
+                        <DropdownAlert ref={ref => this.dropDownAlertRef = ref} />
+                </SafeAreaView>
+                </LinearGradient>
         )}
         else{
             return(
@@ -249,7 +259,9 @@ const styles = StyleSheet.create({
       backgroundColor: 'transparent',
     },
     loginButton : {
-        backgroundColor : '#F06229',
+        backgroundColor:'transparent',
+        borderWidth:2,
+        borderColor:'white',
         marginVertical: 20,
         width : 270,
         height : 40,
@@ -259,5 +271,14 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         fontSize: 18,
         color: 'red'
-      }
+      },
+      input:{
+        width:SCREEN_WIDTH-60,
+        paddingBottom:20
+    },
+    textinput:{
+        color:'white',
+        fontWeight:'600'
+    }
   });
+
